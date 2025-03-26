@@ -1,0 +1,14 @@
+@import './components/video-player/index.css';
+
+body.development {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#app.development {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+}
