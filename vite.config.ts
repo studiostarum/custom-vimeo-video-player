@@ -11,7 +11,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'CustomVimeoPlayer',
       fileName: (format) => `index.${format}.js`,
-      formats: ['es', 'cjs']
+      formats: ['es', 'cjs', 'umd']
     },
     outDir: 'dist',
     rollupOptions: {
@@ -23,7 +23,7 @@ export default defineConfig({
       }
     },
     sourcemap: true,
-    cssCodeSplit: true
+    cssCodeSplit: false
   },
   server: {
     port: 3000,
