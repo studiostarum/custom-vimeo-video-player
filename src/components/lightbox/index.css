@@ -131,6 +131,12 @@ body.lightbox-open {
   overflow: hidden;
 }
 
+/* Hide custom play button in lightbox mode */
+.lightbox-player .lightbox-trigger-button,
+.lightbox-player .vimeo-thumbnail {
+  display: none !important;
+}
+
 .lightbox-player .vimeo-player-container {
   z-index: 5;
 }

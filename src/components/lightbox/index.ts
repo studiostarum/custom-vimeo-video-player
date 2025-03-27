@@ -154,10 +154,10 @@ export class Lightbox {
           videoIdOrUrl: this.options.videoIdOrUrl,
           autoplay: this.options.autoplay,
           muted: this.options.muted,
-          controls: true, // Always enable controls in lightbox
+          controls: true,
           loop: this.options.loop,
-          background: false, // Ensure background mode is off
-          hasLightbox: false, // Important: set hasLightbox to false for lightbox player
+          background: false,
+          hasLightbox: true,
           quality: this.options.quality || '1080p'
         });
 

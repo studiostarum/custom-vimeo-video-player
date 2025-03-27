@@ -53,7 +53,8 @@ export class VideoPlayer {
     this.container.style.overflow = 'hidden';
     this.container.style.backgroundColor = '#000';
     
-    if (hasLightbox) {
+    // Only set data-lightbox attribute for preview mode, not lightbox mode
+    if (!hasLightbox && options.hasLightbox) {
       this.container.setAttribute('data-lightbox', 'true');
     }
 
@@ -62,8 +63,8 @@ export class VideoPlayer {
     playerContainer.className = 'vimeo-player-container';
     this.container.appendChild(playerContainer);
 
-    // Set thumbnail if provided
-    if (thumbnailUrl) {
+    // Set thumbnail if provided and not in lightbox mode
+    if (thumbnailUrl && !hasLightbox) {
       const thumbnail = document.createElement('img');
       thumbnail.className = 'vimeo-thumbnail';
       thumbnail.src = thumbnailUrl;
@@ -89,16 +90,17 @@ export class VideoPlayer {
     const playerOptions = {
       id: videoId,
       responsive: true,
-      controls: hasLightbox ? true : (options.controls ?? false),
-      background: hasLightbox ? false : (options.background ?? true),
+      controls: hasLightbox ? true : false, // Always show controls in lightbox mode
+      background: !hasLightbox && (options.background ?? true), // Only use background mode in preview
       muted: hasLightbox ? false : (options.muted ?? true),
       loop: options.loop ?? true,
       quality: options.quality ?? '1080p',
       autopause: false,
       playsinline: true,
-      title: hasLightbox,
-      byline: hasLightbox,
-      portrait: hasLightbox
+      title: hasLightbox ? true : false, // Show title in lightbox mode
+      byline: hasLightbox ? true : false, // Show byline in lightbox mode
+      portrait: hasLightbox ? true : false, // Show portrait in lightbox mode
+      transparent: false
     };
 
     try {
@@ -128,13 +130,16 @@ export class VideoPlayer {
       this.player.on('pause', this.onPlayerPause);
 
       // Handle lightbox click events
-      if (hasLightbox) {
-        this.container.addEventListener('click', (e) => {
-          if (e.target === this.container) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        });
+      if (!hasLightbox && options.hasLightbox) {
+        // Only add trigger button in preview mode
+        const triggerButton = document.createElement('button');
+        triggerButton.className = 'lightbox-trigger-button';
+        triggerButton.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5v14l11-7z" fill="currentColor"/>
+          </svg>
+        `;
+        this.container.appendChild(triggerButton);
       }
 
       // Set a timeout to automatically remove the loading state
