@@ -21,7 +21,10 @@ A lightweight, customizable Vimeo video player with lightbox support. Perfect fo
 Add this script to your page's `<head>` section:
 
 ```html
+<!-- JavaScript -->
 <script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.4/dist/custom-vimeo-player.min.js"></script>
+<!-- CSS -->
+<link rel="stylesheet" href="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.4/dist/custom-vimeo-player.css">
 ```
 
 ### Option 2: npm (For JavaScript Projects)
@@ -31,6 +34,11 @@ npm install @studiostarum/custom-vimeo-player
 ```
 
 ## Recent Updates
+
+### v1.4.5
+- Fixed issue with CSS not being loaded properly
+- Added explicit CSS import option
+- Improved documentation for styling
 
 ### v1.4.4
 - Fixed Lightbox component initialization error with improved error handling
@@ -68,8 +76,11 @@ That's it! The player will automatically initialize.
 ### Using with npm
 
 ```typescript
-// Import the components (CSS is automatically imported)
+// Import the components 
 import { VideoPlayer, Lightbox } from '@studiostarum/custom-vimeo-player';
+
+// Import the CSS (important!)
+import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
 
 // Create a basic video player
 const player = new VideoPlayer({
@@ -95,6 +106,25 @@ const lightbox = new Lightbox({
   autoplay: true,
   controls: true
 });
+```
+
+## Alternative CSS Import Methods
+
+If you're using a bundler like webpack, vite, or other build tools, you can also import the CSS in these ways:
+
+```javascript
+// Method 1: Direct import
+import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
+
+// Method 2: Using the styles export
+import '@studiostarum/custom-vimeo-player/styles';
+```
+
+In Next.js, you might need to add the import to your `_app.js` or similar file:
+
+```javascript
+// pages/_app.js or similar
+import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
 ```
 
 ## Data Attributes
