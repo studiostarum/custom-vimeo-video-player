@@ -6,6 +6,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "style": "./dist/custom-vimeo-player.css",
   "files": [
     "dist",
     "README.md"
@@ -16,7 +17,8 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./styles": "./dist/custom-vimeo-player.css"
+    "./styles": "./dist/custom-vimeo-player.css",
+    "./dist/custom-vimeo-player.css": "./dist/custom-vimeo-player.css"
   },
   "scripts": {
     "dev": "vite",

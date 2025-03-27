@@ -57,7 +57,10 @@ That's it! The player will automatically initialize.
 
 ```typescript
 import { VideoPlayer, Lightbox } from '@studiostarum/custom-vimeo-player';
+// Import styles (either method works)
 import '@studiostarum/custom-vimeo-player/styles';
+// OR
+import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
 
 // Create a basic video player
 const player = new VideoPlayer({
