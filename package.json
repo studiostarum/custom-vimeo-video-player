@@ -3,8 +3,8 @@
   "version": "1.2.3",
   "description": "A modern, responsive video player implementation built on top of the Vimeo Player SDK",
   "type": "module",
-  "main": "./dist/custom-vimeo-player.min.js",
-  "module": "./dist/custom-vimeo-player.min.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
@@ -12,11 +12,11 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/custom-vimeo-player.min.js",
-      "require": "./dist/custom-vimeo-player.min.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
-    "./dist/custom-vimeo-player.css": "./dist/custom-vimeo-player.css"
+    "./styles": "./dist/style.css"
   },
   "scripts": {
     "dev": "vite",

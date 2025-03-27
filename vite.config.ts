@@ -8,16 +8,27 @@ const __dirname = dirname(__filename)
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/auto-init.ts'),
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'CustomVimeoPlayer',
-      fileName: () => 'custom-vimeo-player.min.js',
-      formats: ['umd']
+      formats: ['es', 'cjs', 'umd'],
+      fileName: (format) => {
+        switch (format) {
+          case 'es':
+            return 'index.js'
+          case 'cjs':
+            return 'index.cjs'
+          case 'umd':
+            return 'custom-vimeo-player.min.js'
+        }
+      }
     },
     outDir: 'dist',
     rollupOptions: {
-      external: [],
+      external: ['@vimeo/player'],
       output: {
-        globals: {}
+        globals: {
+          '@vimeo/player': 'Vimeo'
+        }
       }
     },
     sourcemap: true,
