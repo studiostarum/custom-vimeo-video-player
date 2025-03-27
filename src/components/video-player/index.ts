@@ -79,6 +79,7 @@ export class VideoPlayer {
       background: !hasLightbox && (options.background ?? true), // Only use background mode in preview
       muted: hasLightbox ? false : (options.muted ?? true),
       loop: options.loop ?? true,
+      autoplay: options.autoplay ?? true,
       quality: options.quality ?? '1080p',
       autopause: false,
       playsinline: true,
