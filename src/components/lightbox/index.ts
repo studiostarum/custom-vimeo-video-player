@@ -120,6 +120,18 @@ export class Lightbox {
     });
   }
 
+  private handleClose = (e: MouseEvent): void => {
+    if (e.target === this.lightboxElement) {
+      this.close();
+    }
+  };
+
+  private handleKeydown = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape' && this.isOpen()) {
+      this.close();
+    }
+  };
+
   public open(): void {
     if (!this.lightboxElement || !this.playerElement) {
       return;
@@ -228,6 +240,10 @@ export class Lightbox {
       return;
     }
 
+    // Remove event listeners
+    this.lightboxElement.removeEventListener('click', this.handleClose);
+    document.removeEventListener('keydown', this.handleKeydown);
+
     // Deactivate lightbox
     this.lightboxElement.classList.remove('active');
     document.body.classList.remove('lightbox-open');
@@ -262,6 +278,10 @@ export class Lightbox {
 
   public destroy(): void {
     // Remove event listeners
+    if (this.lightboxElement) {
+      this.lightboxElement.removeEventListener('click', this.handleClose);
+    }
+    document.removeEventListener('keydown', this.handleKeydown);
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
 
     // Remove event listeners from triggers
@@ -289,11 +309,6 @@ export class Lightbox {
   }
 
   private isOpen(): boolean {
-    return this.lightboxElement !== null && this.lightboxElement.classList.contains('active');
-  }
-
-  private detectIOSorMacOS(): boolean {
-    const userAgent = navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod|mac|macintosh/.test(userAgent);
+    return this.lightboxElement?.classList.contains('active') || false;
   }
 } 

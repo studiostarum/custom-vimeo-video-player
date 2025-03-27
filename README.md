@@ -1,4 +1,4 @@
-# Custom Vimeo Video Player
+# Custom Vimeo Player
 
 A modern, responsive video player implementation built on top of the Vimeo Player SDK. Features both inline preview and lightbox modes with comprehensive customization options.
 
@@ -11,11 +11,36 @@ A modern, responsive video player implementation built on top of the Vimeo Playe
 - ♿ Accessibility focused
 - 📱 Mobile-friendly
 
-## Documentation
+## Installation
 
-For detailed implementation and configuration options, please see our [Video Player Documentation](docs/VIDEO_PLAYER.md).
+```bash
+npm install @studiostarum/custom-vimeo-player @vimeo/player
+```
 
-## Quick Start
+## Usage
+
+```typescript
+import { VideoPlayer } from '@studiostarum/custom-vimeo-player';
+import '@studiostarum/custom-vimeo-player/styles';
+
+// Create a new video player
+const player = new VideoPlayer({
+  containerId: 'video-container',
+  videoIdOrUrl: 'YOUR_VIMEO_ID',
+  hasLightbox: true,
+  autoplay: true,
+  muted: true,
+  loop: true
+});
+```
+
+### HTML Setup
+
+```html
+<div id="video-container"></div>
+```
+
+Or use data attributes for automatic initialization:
 
 ```html
 <div class="video-container" 
@@ -23,6 +48,10 @@ For detailed implementation and configuration options, please see our [Video Pla
      data-lightbox="true">
 </div>
 ```
+
+## Documentation
+
+For detailed implementation and configuration options, please see our [Video Player Documentation](docs/VIDEO_PLAYER.md).
 
 ## License
 

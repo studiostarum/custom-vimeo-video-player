@@ -1,31 +1,18 @@
 import Player from '@vimeo/player';
 import type { VideoPlayerOptions } from './types';
 
-interface PlayerConstructorOptions {
-  container: HTMLElement;
-  videoId: string;
-  thumbnailUrl?: string;
-  shouldLoadImmediately?: boolean;
-  hasLightbox?: boolean;
-  options?: Record<string, any>;
-}
-
 export class VideoPlayer {
   private player!: Player;
   private container: HTMLElement;
   private thumbnailElement!: HTMLImageElement;
   private loadingElement!: HTMLDivElement;
-  private isPlayerReady: boolean = false;
-  private videoWidth: number = 0;
-  private videoHeight: number = 0;
-  private thumbnail?: HTMLImageElement;
 
   constructor(options: VideoPlayerOptions) {
     // Handle container initialization
     if (options.container) {
       this.container = options.container;
-      this.container.style.position = 'relative'; // Ensure container has relative positioning
-      this.container.style.overflow = 'hidden'; // Prevent content overflow
+      this.container.style.position = 'relative';
+      this.container.style.overflow = 'hidden';
     } else if (options.containerId) {
       const container = document.getElementById(options.containerId);
       if (!container) {
@@ -70,8 +57,6 @@ export class VideoPlayer {
       thumbnail.src = thumbnailUrl;
       thumbnail.loading = 'lazy';
       this.container.appendChild(thumbnail);
-      
-      this.thumbnail = thumbnail;
       this.thumbnailElement = thumbnail;
     }
 
@@ -195,27 +180,16 @@ export class VideoPlayer {
 
   // Player ready handler
   private onPlayerReady = (): void => {
-    this.isPlayerReady = true;
-    
     // Immediately remove loading states
     this.forceRemoveLoadingStates();
     
     // Mark as ready
     this.container.classList.add('preview-ready');
     
-    // Get video dimensions to set proper aspect ratio
-    this.player.getVideoWidth().then(width => {
-      this.videoWidth = width;
-      
-      this.player.getVideoHeight().then(height => {
-        this.videoHeight = height;
-        
-        // For non-lightbox mode, start playing
-        if (!this.container.hasAttribute('data-lightbox')) {
-          this.play().catch(console.error);
-        }
-      });
-    });
+    // For non-lightbox mode, start playing
+    if (!this.container.hasAttribute('data-lightbox')) {
+      this.play().catch(console.error);
+    }
   };
 
   // Player error handler
@@ -266,10 +240,14 @@ export class VideoPlayer {
     }
   }
 
-  // Helper method to fade out loading states
+  // Method to fade out loading states
   private fadeOutLoadingStates(): void {
-    // Use forceRemoveLoadingStates for immediate removal in all cases
-    this.forceRemoveLoadingStates();
+    if (this.loadingElement) {
+      this.loadingElement.classList.add('fade-out');
+    }
+    if (this.thumbnailElement) {
+      this.thumbnailElement.classList.add('fade-out');
+    }
   }
 
   // Public methods

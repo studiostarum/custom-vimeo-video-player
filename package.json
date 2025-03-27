@@ -1,20 +1,58 @@
 {
-  "name": "awards",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@studiostarum/custom-vimeo-player",
+  "version": "1.0.0",
+  "description": "A modern, responsive video player implementation built on top of the Vimeo Player SDK",
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles": {
+      "import": "./dist/style.css"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "vimeo",
+    "video",
+    "player",
+    "lightbox",
+    "typescript"
+  ],
+  "author": "Studio Starum",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/studiostarum/custom-vimeo-video-player.git"
+  },
+  "bugs": {
+    "url": "https://github.com/studiostarum/custom-vimeo-video-player/issues"
+  },
+  "homepage": "https://github.com/studiostarum/custom-vimeo-video-player#readme",
+  "peerDependencies": {
+    "@vimeo/player": "^2.26.0"
   },
   "devDependencies": {
+    "@types/node": "^22.13.14",
     "@types/vimeo__player": "^2.18.3",
     "typescript": "~5.7.2",
     "vite": "^6.2.0"
   },
   "dependencies": {
-    "@vimeo/player": "^2.26.0",
     "lucide": "^0.484.0"
   }
 }
