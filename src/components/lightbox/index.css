@@ -1,0 +1,244 @@
+:root {
+  --lightbox-bg-color: rgba(0, 0, 0, 1);
+  --content-bg-color: #000;
+  --button-bg-color: #000000;
+  --text-color: white;
+  --box-shadow-normal: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.3);
+  --box-shadow-hover: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.4);
+  --box-shadow-content: 0 0 30px rgba(0, 0, 0, 0.5);
+  --transition-default: all 0.3s ease;
+  --z-index-lightbox: 1000;
+  --z-index-controls: 1001;
+  --z-index-loading: 10;
+  --z-index-lightbox-loading: 20;
+  --close-size: clamp(20px, 5vw, 30px);
+}
+
+/* Common positioning utilities */
+.absolute-fill {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Lightbox container */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--lightbox-bg-color);
+  z-index: var(--z-index-lightbox);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+}
+
+.lightbox.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Lightbox content */
+.lightbox-content {
+  position: relative;
+  width: 90vw;
+  max-width: 100rem;
+  aspect-ratio: 16/9;
+  background-color: var(--content-bg-color);
+  box-shadow: var(--box-shadow-content);
+  z-index: calc(var(--z-index-lightbox) + 1);
+}
+
+@media (max-width: 48rem) {
+  .lightbox-content {
+    width: 95vw;
+  }
+}
+
+/* Close button */
+.lightbox-close {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  width: var(--close-size);
+  height: var(--close-size);
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: var(--z-index-controls);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-close::before,
+.lightbox-close::after {
+  content: '';
+  position: absolute;
+  width: 1.25rem;
+  height: 0.125rem;
+  background-color: var(--text-color);
+}
+
+.lightbox-close::before {
+  transform: rotate(45deg);
+}
+
+.lightbox-close::after {
+  transform: rotate(-45deg);
+}
+
+body.lightbox-open {
+  overflow: hidden;
+}
+
+/* Player styling */
+.lightbox-player {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+  background-color: var(--content-bg-color);
+}
+
+/* Ensure Vimeo player controls are visible */
+.lightbox-player .vimeo-player-container iframe {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: translate(-50%, -50%) !important;
+  border: 0 !important;
+  z-index: 10 !important;
+}
+
+/* Ensure player container maintains proper dimensions */
+.lightbox-player .vimeo-player-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+}
+
+/* Update loading states z-index */
+.lightbox-player .vimeo-loading,
+.lightbox-player .vimeo-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+}
+
+/* Lightbox Trigger Button */
+.lightbox-trigger-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  padding: 0.875rem;
+  background-color: var(--button-bg-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: var(--box-shadow-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  transition: var(--transition-default);
+  /* Hide by default until thumbnail loads */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Button appears when ready class is added */
+.preview-ready .lightbox-trigger-button {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity 0.6s ease, visibility 0.6s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: buttonPulse 1.5s ease-in-out infinite;
+}
+
+/* Button pulse animation */
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 0.625rem rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+.lightbox-trigger-button:hover {
+  background-color: var(--button-bg-color);
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.lightbox-trigger-button svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 0.125rem;
+}
+
+/* Lightbox loading spinner */
+.lightbox-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: var(--z-index-lightbox-loading);
+  pointer-events: none;
+}
+
+.loading-spinner {
+  width: 4rem;
+  height: 4rem;
+  border: 0.25rem solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--text-color);
+  animation: lightboxSpin 1s ease-in-out infinite;
+}
+
+.loading-text {
+  margin-top: 1.5rem;
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+@keyframes lightboxSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

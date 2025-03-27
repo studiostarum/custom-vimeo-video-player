@@ -1,4 +1,5 @@
 @import './components/video-player/index.css';
+@import './components/lightbox/index.css';
 
 body.development {
   margin: 0;

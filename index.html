@@ -5,11 +5,25 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite + TS</title>
+  <title>Video Player Demo</title>
 </head>
 
 <body class="development">
-  <div id="app" class="development"></div>
+  <div id="app" class="development">
+    <div class="container">
+      <!-- Example 1: Video player with lightbox -->
+      <div class="video-container" data-video-id="933270643" data-lightbox="true"></div>
+
+      <!-- Example 2: Video player without lightbox (background only) -->
+      <div class="video-container" data-video-id="933270643"></div>
+
+      <!-- Example 3: Custom options for both player and lightbox -->
+      <div class="video-container" data-video-id="933270643" data-lightbox="true" data-autoplay="true" data-muted="true"
+        data-loop="true" data-lightbox-controls="true" data-lightbox-muted="false" data-lightbox-loop="false"
+        data-quality="1080p">
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 
