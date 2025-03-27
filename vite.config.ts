@@ -28,6 +28,12 @@ export default defineConfig({
       output: {
         globals: {
           '@vimeo/player': 'Vimeo'
+        },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'style.css') {
+            return 'custom-vimeo-player.css';
+          }
+          return assetInfo.name;
         }
       }
     },
