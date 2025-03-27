@@ -21,7 +21,7 @@ A lightweight, customizable Vimeo video player with lightbox support. Perfect fo
 Add this script to your page's `<head>` section:
 
 ```html
-<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.2.1/dist/custom-vimeo-player.min.js"></script>
+<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.0/dist/custom-vimeo-player.min.js"></script>
 ```
 
 ### Option 2: npm (For JavaScript Projects)
@@ -56,11 +56,8 @@ That's it! The player will automatically initialize.
 ### Using with npm
 
 ```typescript
+// Import the components (CSS is automatically imported)
 import { VideoPlayer, Lightbox } from '@studiostarum/custom-vimeo-player';
-// Import styles (either method works)
-import '@studiostarum/custom-vimeo-player/styles';
-// OR
-import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
 
 // Create a basic video player
 const player = new VideoPlayer({
