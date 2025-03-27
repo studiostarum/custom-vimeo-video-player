@@ -96,6 +96,22 @@ function initializeVideoPlayers() {
         
         container.appendChild(buttonElement);
         
+        // Make the entire container clickable
+        const handleContainerClick = (e: Event) => {
+          // Don't trigger if clicking on the button itself (it has its own handler)
+          if (!(e.target as HTMLElement).closest('.lightbox-trigger-button')) {
+            e.preventDefault();
+            buttonElement.click(); // Simulate click on the button to open lightbox
+          }
+        };
+        
+        // Store the handler reference on the container to prevent it from being garbage collected
+        (container as any)._clickHandler = handleContainerClick;
+        
+        // Remove any existing click listener before adding a new one
+        container.removeEventListener('click', (container as any)._clickHandler);
+        container.addEventListener('click', (container as any)._clickHandler);
+        
         // Listen for the player-ready event (both thumbnail and video loaded)
         container.addEventListener('player-ready', () => {
           // Add a short delay before showing the button for a smoother animation

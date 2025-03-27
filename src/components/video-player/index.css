@@ -11,7 +11,8 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    min-height: 0; /* Remove min-height so it doesn't force viewport size */
+    min-height: 0;
+    /* Remove min-height so it doesn't force viewport size */
     background-color: #000;
     display: flex;
     align-items: center;
@@ -19,11 +20,11 @@
 }
 
 /* Common container for applying transform to maintain aspect ratio while filling */
-.vimeo-player-container > div {
+.vimeo-player-container>div {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    width: 100% !important; 
+    width: 100% !important;
     height: 100% !important;
     transform: translate(-50%, -50%) !important;
     padding: 0 !important;
@@ -34,28 +35,30 @@
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    width: 150% !important; /* Expanded size to ensure coverage */
-    height: 150% !important; /* Expanded size to ensure coverage */
+    width: 150% !important;
+    /* Expanded size to ensure coverage */
+    height: 150% !important;
+    /* Expanded size to ensure coverage */
     transform: translate(-50%, -50%) !important;
     border: 0 !important;
 }
 
 /* Scale adjustments for different screen sizes */
-@media (min-width: 768px) {
+@media (min-width: 48rem) {
     .vimeo-player-container iframe {
         width: 250% !important;
         height: 250% !important;
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 64rem) {
     .vimeo-player-container iframe {
         width: 220% !important;
         height: 220% !important;
     }
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 90rem) {
     .vimeo-player-container iframe {
         width: 150% !important;
         height: 150% !important;
@@ -63,7 +66,8 @@
 }
 
 /* Remove global overflow hidden that was affecting the whole page */
-html, body {
+html,
+body {
     overflow: visible;
 }
 
@@ -80,7 +84,7 @@ html, body {
     z-index: 5;
     opacity: 1;
     transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(0.25rem);
     pointer-events: none;
 }
 
@@ -94,17 +98,19 @@ html, body {
 .vimeo-loading.error-state {
     display: flex;
     opacity: 1;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(0.25rem);
 }
 
 .vimeo-loading.hidden,
 .vimeo-thumbnail.hidden {
-    display: none;
+    opacity: 0;
+    visibility: hidden;
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
+    pointer-events: none;
 }
 
 .vimeo-thumbnail {
@@ -139,6 +145,7 @@ html, body {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -146,42 +153,69 @@ html, body {
 
 /* Add styles for the main container using the class from index.html */
 .video-container {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  /* 16:9 Aspect Ratio (9 / 16 = 0.5625) - Adjust if needed */
-  padding-top: 56.25%;
-  height: 0; /* Set height to 0 because padding provides the space */
-  background-color: #eee; /* Optional: Add a background color for visual feedback */
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    /* 16:9 Aspect Ratio (9 / 16 = 0.5625) - Adjust if needed */
+    padding-top: 56.25%;
+    height: 0;
+    /* Set height to 0 because padding provides the space */
+    background-color: #eee;
+    /* Optional: Add a background color for visual feedback */
+    transition: filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Make video containers with lightbox clickable */
+.video-container[data-lightbox="true"] {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure the player container doesn't block clicks */
+.video-container[data-lightbox="true"] .vimeo-player-container {
+    pointer-events: none;
+}
+
+/* Only enable pointer events for the iframe itself */
+.video-container[data-lightbox="true"] .vimeo-player-container iframe {
+    pointer-events: none;
+}
+
+/* Add hover effect to indicate interactivity */
+.video-container[data-lightbox="true"]:hover {
+    filter: brightness(0.85);
 }
 
 /* Adjust direct children to fill the space created by padding */
-.video-container > .vimeo-player-container,
-.video-container > .vimeo-thumbnail,
-.video-container > .vimeo-loading,
-.video-container > .lightbox-trigger-button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.video-container>.vimeo-player-container,
+.video-container>.vimeo-thumbnail,
+.video-container>.vimeo-loading,
+.video-container>.lightbox-trigger-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 /* Ensure the lightbox button keeps its specific size and centering */
 /* Note: We override width/height from the rule above */
-.video-container > .lightbox-trigger-button {
-  top: 50%;
-  left: 50%;
-  /* Re-apply transform from lightbox.css for initial state */
-  transform: translate(-50%, -50%) scale(0.5);
-  /* Re-apply specific size from lightbox.css */
-  width: 3.75rem;
-  height: 3.75rem;
-  /* Ensure z-index is high enough */
-  z-index: 100;
+.video-container>.lightbox-trigger-button {
+    top: 50%;
+    left: 50%;
+    /* Re-apply transform from lightbox.css for initial state */
+    transform: translate(-50%, -50%) scale(0.5);
+    /* Re-apply specific size from lightbox.css */
+    width: 3.75rem;
+    height: 3.75rem;
+    /* Ensure z-index is high enough */
+    z-index: 100;
 }
 
 /* Adjust the ready state transform for the button */
-.video-container.preview-ready > .lightbox-trigger-button {
-  transform: translate(-50%, -50%) scale(1); /* Ready state */
+.video-container.preview-ready>.lightbox-trigger-button {
+    transform: translate(-50%, -50%) scale(1);
+    /* Ready state */
 }

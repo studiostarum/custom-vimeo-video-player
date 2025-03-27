@@ -137,11 +137,11 @@ export class VideoPlayer {
       this.loadingElement.classList.add('fade-out');
       this.thumbnailElement.classList.add('fade-out');
       
-      // After transition completes, hide elements completely
+      // After transition completes, hide elements completely but preserve structure
       setTimeout(() => {
         if (!this.loadingElement || !this.thumbnailElement) return;
         
-        // Keep position but hide from view
+        // Use hidden class that preserves the element structure
         this.loadingElement.classList.add('hidden');
         this.thumbnailElement.classList.add('hidden');
       }, 500); // Match this with the CSS transition duration
