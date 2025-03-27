@@ -14,15 +14,27 @@ A lightweight, customizable Vimeo video player with lightbox support. Perfect fo
 - ⌨️ Keyboard navigation in lightbox mode
 - 🔍 High-quality video options
 
-## Quick Start
+## Installation
+
+### Option 1: CDN (Recommended for Webflow)
 
 Add this script to your page's `<head>` section:
 
 ```html
-<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.2.0/dist/custom-vimeo-player.min.js"></script>
+<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.2.1/dist/custom-vimeo-player.min.js"></script>
 ```
 
-Then add video containers anywhere in your HTML:
+### Option 2: npm (For JavaScript Projects)
+
+```bash
+npm install @studiostarum/custom-vimeo-player
+```
+
+## Usage
+
+### Using with CDN
+
+Just add video containers anywhere in your HTML:
 
 ```html
 <!-- Basic Video Player -->
@@ -40,6 +52,38 @@ Then add video containers anywhere in your HTML:
 ```
 
 That's it! The player will automatically initialize.
+
+### Using with npm
+
+```typescript
+import { VideoPlayer, Lightbox } from '@studiostarum/custom-vimeo-player';
+import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
+
+// Create a basic video player
+const player = new VideoPlayer({
+  containerId: 'video-container',
+  videoIdOrUrl: '75406915',
+  autoplay: true,
+  muted: true
+});
+
+// Create a video player with lightbox
+const playerWithLightbox = new VideoPlayer({
+  containerId: 'video-container-2',
+  videoIdOrUrl: '75406915',
+  autoplay: true,
+  muted: true,
+  background: true // Use background mode for preview
+});
+
+// Initialize lightbox separately
+const lightbox = new Lightbox({
+  triggerSelector: '#video-container-2',
+  videoIdOrUrl: '75406915',
+  autoplay: true,
+  controls: true
+});
+```
 
 ## Data Attributes
 
