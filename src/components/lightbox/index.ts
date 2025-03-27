@@ -18,6 +18,7 @@ export class Lightbox {
       muted: options.muted !== undefined ? options.muted : false,
       controls: options.controls !== undefined ? options.controls : true,
       loop: options.loop !== undefined ? options.loop : false,
+      resumeOnVisibilityChange: options.resumeOnVisibilityChange !== undefined ? options.resumeOnVisibilityChange : false,
     };
 
     this.createLightbox();
@@ -34,21 +35,32 @@ export class Lightbox {
     }
 
     if (document.hidden) {
-      // Pause video when tab loses focus
-      this.wasPlaying = true;
-      this.videoPlayer.pause().catch(err => {
-        // Ignore "PlayInterrupted" errors
-        if (!err.toString().includes('PlayInterrupted')) {
-          console.error('Error pausing lightbox video:', err);
-        }
-      });
-    } else if (this.wasPlaying) {
-      // Resume video when tab regains focus (with a small delay)
-      setTimeout(() => {
-        this.videoPlayer?.play().catch(err => {
-          console.warn('Could not resume lightbox video:', err);
+      // Store playing state before pausing
+      this.videoPlayer.getPlaying().then(playing => {
+        this.wasPlaying = playing;
+        
+        // Always pause video when tab loses focus
+        this.videoPlayer?.pause().catch(err => {
+          // Ignore "PlayInterrupted" errors
+          if (!err.toString().includes('PlayInterrupted')) {
+            console.error('Error pausing lightbox video:', err);
+          }
         });
-      }, 300);
+      }).catch(err => {
+        console.warn('Could not determine video state:', err);
+        // Fallback - always pause
+        this.videoPlayer?.pause().catch(console.error);
+      });
+    } else {
+      // Do not auto-resume when tab regains focus
+      // Only resume if explicitly set to resume
+      if (this.options.resumeOnVisibilityChange && this.wasPlaying) {
+        setTimeout(() => {
+          this.videoPlayer?.play().catch(err => {
+            console.warn('Could not resume lightbox video:', err);
+          });
+        }, 300);
+      }
     }
   }
 
@@ -123,31 +135,77 @@ export class Lightbox {
     document.body.classList.add('lightbox-open');
     this.lightboxElement.classList.add('active');
 
+    // Set a timeout to remove the loading spinner if it takes too long
+    const loadingTimeout = setTimeout(() => {
+      if (loadingSpinner.parentNode) {
+        console.warn('Lightbox loading timeout - removing spinner');
+        loadingSpinner.parentNode.removeChild(loadingSpinner);
+      }
+    }, 15000); // 15 seconds timeout
+
     // Initialize video player if not already created
     if (!this.videoPlayer) {
-      this.videoPlayer = new VideoPlayer({
-        container: this.playerElement,
-        videoIdOrUrl: this.options.videoIdOrUrl,
-        autoplay: this.options.autoplay,
-        muted: this.options.muted,
-        controls: true, // Ensure controls are enabled
-        loop: this.options.loop,
-        background: false, // Ensure background mode is off
-        quality: this.options.quality || '1080p'
-      });
+      try {
+        // Add lightbox-player class to the player element
+        this.playerElement.classList.add('lightbox-player');
+        
+        this.videoPlayer = new VideoPlayer({
+          container: this.playerElement,
+          videoIdOrUrl: this.options.videoIdOrUrl,
+          autoplay: this.options.autoplay,
+          muted: this.options.muted,
+          controls: true, // Always enable controls in lightbox
+          loop: this.options.loop,
+          background: false, // Ensure background mode is off
+          hasLightbox: false, // Important: set hasLightbox to false for lightbox player
+          quality: this.options.quality || '1080p'
+        });
 
-      // Ensure the player is properly sized
-      this.fixPlayerSizing();
-
-      // Remove loading spinner when player is ready
-      this.playerElement.addEventListener('player-ready', () => {
-        // Remove the loading spinner after a short delay
-        setTimeout(() => {
+        // Listen for player error events
+        this.playerElement.addEventListener('player-error', () => {
+          // Remove the loading spinner if there's an error
+          clearTimeout(loadingTimeout);
           if (loadingSpinner.parentNode) {
             loadingSpinner.parentNode.removeChild(loadingSpinner);
           }
-        }, 500);
-      });
+          
+          // Add an error message to the lightbox
+          const errorMessage = document.createElement('div');
+          errorMessage.className = 'lightbox-error-message';
+          errorMessage.textContent = 'Video failed to load. Please try again later.';
+          this.contentElement?.appendChild(errorMessage);
+        });
+
+        // Ensure the player is properly sized
+        this.fixPlayerSizing();
+
+        // Remove loading spinner immediately when created
+        // This is faster than waiting for player-ready event
+        if (loadingSpinner.parentNode) {
+          loadingSpinner.parentNode.removeChild(loadingSpinner);
+        }
+        clearTimeout(loadingTimeout);
+
+        // This is a backup in case the above removal doesn't work
+        this.playerElement.addEventListener('player-ready', () => {
+          clearTimeout(loadingTimeout);
+          if (loadingSpinner.parentNode) {
+            loadingSpinner.parentNode.removeChild(loadingSpinner);
+          }
+        });
+      } catch (error) {
+        console.error('Error creating video player:', error);
+        clearTimeout(loadingTimeout);
+        if (loadingSpinner.parentNode) {
+          loadingSpinner.parentNode.removeChild(loadingSpinner);
+        }
+        
+        // Add an error message to the lightbox
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'lightbox-error-message';
+        errorMessage.textContent = 'Video failed to load. Please try again later.';
+        this.contentElement?.appendChild(errorMessage);
+      }
     }
 
     // Add event listener for closing the lightbox

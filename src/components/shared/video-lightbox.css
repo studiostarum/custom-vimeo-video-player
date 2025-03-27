@@ -1,0 +1,169 @@
+/* 
+ * Shared Video & Lightbox Styles
+ * This file contains shared styles between video player and lightbox components
+ */
+
+:root {
+  --bg-color: #000;
+  --text-color: white;
+  --button-bg-color: #000000;
+  --loading-bg-color: rgba(0, 0, 0, 0.5);
+  --error-bg-color: rgba(0, 0, 0, 0.7);
+  --box-shadow-normal: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.3);
+  --box-shadow-hover: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.4);
+  --transition-default: all 0.3s ease;
+  --z-index-base: 1;
+  --z-index-overlay: 5;
+  --z-index-controls: 10;
+  --z-index-lightbox: 1000;
+}
+
+/* Common animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes buttonPulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.5); }
+  70% { box-shadow: 0 0 0 0.625rem rgba(0, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+
+/* Positioning utilities */
+.absolute-fill {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.center-absolute {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Base container styles */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-color);
+}
+
+/* Player iframe styles */
+.vimeo-player-container iframe {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* Thumbnail styles */
+.vimeo-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: var(--z-index-base);
+  opacity: 1;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1);
+}
+
+.vimeo-thumbnail.fade-out {
+  opacity: 0;
+  transform: scale(1.05);
+}
+
+/* Loading spinner */
+.vimeo-loading, 
+.lightbox-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--loading-bg-color);
+  z-index: var(--z-index-overlay);
+  opacity: 1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.vimeo-spinner,
+.loading-spinner {
+  width: 3.125rem;
+  height: 3.125rem;
+  border: 0.1875rem solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--text-color);
+  animation: spin 1s ease-in-out infinite;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Error states */
+.vimeo-loading.error-state {
+  background-color: var(--error-bg-color);
+}
+
+.vimeo-loading.error-state .vimeo-spinner {
+  border-top-color: #ff3b30;
+  animation: none;
+  transform: rotate(45deg);
+}
+
+/* Trigger button */
+.lightbox-trigger-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  padding: 0.875rem;
+  background-color: var(--button-bg-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: var(--z-index-controls);
+  box-shadow: var(--box-shadow-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  transition: var(--transition-default);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preview-ready .lightbox-trigger-button {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity 0.6s ease, visibility 0.6s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: buttonPulse 1.5s ease-in-out infinite;
+}
+
+.lightbox-trigger-button:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.lightbox-trigger-button svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 0.125rem;
+} 

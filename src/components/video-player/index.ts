@@ -1,11 +1,24 @@
 import Player from '@vimeo/player';
 import type { VideoPlayerOptions } from './types';
 
+interface PlayerConstructorOptions {
+  container: HTMLElement;
+  videoId: string;
+  thumbnailUrl?: string;
+  shouldLoadImmediately?: boolean;
+  hasLightbox?: boolean;
+  options?: Record<string, any>;
+}
+
 export class VideoPlayer {
-  private player: Player;
+  private player!: Player;
   private container: HTMLElement;
-  private thumbnailElement: HTMLImageElement;
-  private loadingElement: HTMLDivElement;
+  private thumbnailElement!: HTMLImageElement;
+  private loadingElement!: HTMLDivElement;
+  private isPlayerReady: boolean = false;
+  private videoWidth: number = 0;
+  private videoHeight: number = 0;
+  private thumbnail?: HTMLImageElement;
 
   constructor(options: VideoPlayerOptions) {
     // Handle container initialization
@@ -19,198 +32,270 @@ export class VideoPlayer {
         throw new Error(`Container with ID "${options.containerId}" not found`);
       }
       this.container = container;
-      this.container.style.position = 'relative'; // Ensure container has relative positioning
-      this.container.style.overflow = 'hidden'; // Prevent content overflow
+      this.container.style.position = 'relative';
+      this.container.style.overflow = 'hidden';
     } else {
-      throw new Error('Either container or containerId must be provided');
+      throw new Error('No container provided for video player');
     }
 
-    // Add player container to ensure consistent sizing
+    this.initialize(options);
+  }
+
+  // Initialize the player
+  private initialize(options: VideoPlayerOptions): void {
+    const { videoIdOrUrl, thumbnailUrl, hasLightbox } = options;
+    const videoId = this.extractVideoId(videoIdOrUrl);
+    
+    this.container.classList.add('video-container');
+    
+    // Set container styles
+    this.container.style.position = 'relative';
+    this.container.style.overflow = 'hidden';
+    this.container.style.backgroundColor = '#000';
+    
+    if (hasLightbox) {
+      this.container.setAttribute('data-lightbox', 'true');
+    }
+
+    // Create player container
     const playerContainer = document.createElement('div');
     playerContainer.className = 'vimeo-player-container';
     this.container.appendChild(playerContainer);
 
-    // Create loading spinner
-    this.loadingElement = document.createElement('div');
-    this.loadingElement.className = 'vimeo-loading';
-    this.loadingElement.innerHTML = '<div class="vimeo-spinner"></div>';
-    this.container.appendChild(this.loadingElement);
+    // Set thumbnail if provided
+    if (thumbnailUrl) {
+      const thumbnail = document.createElement('img');
+      thumbnail.className = 'vimeo-thumbnail';
+      thumbnail.src = thumbnailUrl;
+      thumbnail.loading = 'lazy';
+      this.container.appendChild(thumbnail);
+      
+      this.thumbnail = thumbnail;
+      this.thumbnailElement = thumbnail;
+    }
 
-    // Create thumbnail
-    this.thumbnailElement = document.createElement('img');
-    this.thumbnailElement.className = 'vimeo-thumbnail';
-    this.thumbnailElement.style.width = '100%';
-    this.thumbnailElement.style.height = '100%';
-    this.container.appendChild(this.thumbnailElement);
+    // Set loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'vimeo-loading';
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'vimeo-spinner';
+    loadingIndicator.appendChild(spinner);
+    
+    this.container.appendChild(loadingIndicator);
+    this.loadingElement = loadingIndicator;
 
-    // Parse video ID
-    const videoId = this.extractVideoId(options.videoIdOrUrl);
-
-    // Default player options with sensible defaults
+    // Set player options with sensible defaults
     const playerOptions = {
       id: videoId,
       responsive: true,
-      controls: options.controls ?? false,
-      background: options.background ?? true,
-      muted: options.muted ?? true,
+      controls: hasLightbox ? true : (options.controls ?? false),
+      background: hasLightbox ? false : (options.background ?? true),
+      muted: hasLightbox ? false : (options.muted ?? true),
       loop: options.loop ?? true,
       quality: options.quality ?? '1080p',
-      speed: true,
-      transparent: true,
-      dnt: true,
-      pip: false,
-      playsinline: true
+      autopause: false,
+      playsinline: true,
+      title: hasLightbox,
+      byline: hasLightbox,
+      portrait: hasLightbox
     };
 
-    // Set thumbnail URL - this will track loading
-    this.setThumbnail(videoId);
+    try {
+      // Initialize player
+      this.player = new Player(playerContainer, playerOptions);
 
-    // Initialize player in the player container rather than directly in the container
-    this.player = new Player(playerContainer, playerOptions);
-
-    // Track loading states
-    let thumbnailLoaded = false;
-    let videoLoaded = false;
-
-    // Function to check if everything is loaded
-    const checkAllLoaded = () => {
-      if (thumbnailLoaded && videoLoaded) {
-        // Dispatch ready event only when both video and thumbnail are loaded
-        const readyEvent = new CustomEvent('player-ready', {
-          bubbles: true,
-          detail: { videoId }
-        });
-        this.container.dispatchEvent(readyEvent);
-        
-        // Add ready class only after both are loaded
-        this.container.classList.add('preview-ready');
-        
-        // Now fade out loading states
-        this.fadeOutLoadingStates();
-      }
-    };
-
-    // Listen for thumbnail loaded event
-    this.thumbnailElement.addEventListener('load', () => {
-      thumbnailLoaded = true;
-      checkAllLoaded();
-    });
-
-    // Handle video states
-    this.player.ready().then(() => {
-      // Rather than autoplaying immediately, wait for loaded event
+      // Set loading and error event handlers
       this.player.on('loaded', () => {
-        videoLoaded = true;
-        checkAllLoaded();
+        this.onPlayerReady();
+        // Force remove loading states immediately on any player type
+        this.forceRemoveLoadingStates();
+      });
 
-        // If autoplay is enabled, start playing
-        if (options.autoplay ?? true) {
-          this.play().catch(error => {
-            console.warn('Autoplay failed, likely due to browser restrictions:', error);
+      // Handle the 'ready' event from the Vimeo player
+      this.player.on('ready', () => {
+        // Also force-remove loading states on ready event
+        this.forceRemoveLoadingStates();
+      });
+
+      this.player.on('play', () => {
+        this.onPlayerPlay();
+        // Immediately remove loading states on play
+        this.forceRemoveLoadingStates();
+      });
+
+      this.player.on('error', this.onPlayerError);
+      this.player.on('pause', this.onPlayerPause);
+
+      // Handle lightbox click events
+      if (hasLightbox) {
+        this.container.addEventListener('click', (e) => {
+          if (e.target === this.container) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        });
+      }
+
+      // Set a timeout to automatically remove the loading state
+      // if the player takes too long to initialize or encounters silent errors
+      const loadingTimeout = setTimeout(() => {
+        if (this.loadingElement && this.loadingElement.parentNode) {
+          console.warn('Video player initialization timeout - forcing loading state removal');
+          this.forceRemoveLoadingStates();
+        }
+      }, 10000); // 10 seconds timeout
+
+      // Start playing if not in lightbox mode
+      this.player.ready().then(() => {
+        clearTimeout(loadingTimeout);
+        // Remove loading states immediately on player ready
+        this.forceRemoveLoadingStates();
+        
+        if (hasLightbox) {
+          // No need to play for lightbox mode
+        } else {
+          this.play().catch(err => {
+            console.error('Error playing video:', err);
+            // Force remove loading state on play error
+            this.forceRemoveLoadingStates();
           });
         }
+      }).catch(err => {
+        clearTimeout(loadingTimeout);
+        console.error('Player ready error:', err);
+        this.onPlayerError();
       });
-      
-      // Fallback: If loaded event doesn't fire within 5 seconds, consider video loaded anyway
-      setTimeout(() => {
-        if (!videoLoaded) {
-          console.warn('Vimeo loaded event did not fire within timeout, forcing loaded state');
-          videoLoaded = true;
-          checkAllLoaded();
-        }
-      }, 5000);
-    });
+    } catch (error) {
+      console.error('Error initializing Vimeo player:', error);
+      this.onPlayerError();
+    }
+  }
 
-    this.player.on('error', () => {
+  // Extract video ID from URL or ID string
+  private extractVideoId(videoIdOrUrl: string): number {
+    // Handle direct numeric ID case
+    if (/^\d+$/.test(videoIdOrUrl)) {
+      return parseInt(videoIdOrUrl, 10);
+    }
+
+    // Handle URL cases
+    const urlMatch = videoIdOrUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    if (urlMatch && urlMatch[1]) {
+      return parseInt(urlMatch[1], 10);
+    }
+
+    throw new Error(`Invalid Vimeo video ID or URL: ${videoIdOrUrl}`);
+  }
+
+  // Player ready handler
+  private onPlayerReady = (): void => {
+    this.isPlayerReady = true;
+    
+    // Immediately remove loading states
+    this.forceRemoveLoadingStates();
+    
+    // Mark as ready
+    this.container.classList.add('preview-ready');
+    
+    // Get video dimensions to set proper aspect ratio
+    this.player.getVideoWidth().then(width => {
+      this.videoWidth = width;
+      
+      this.player.getVideoHeight().then(height => {
+        this.videoHeight = height;
+        
+        // For non-lightbox mode, start playing
+        if (!this.container.hasAttribute('data-lightbox')) {
+          this.play().catch(console.error);
+        }
+      });
+    });
+  };
+
+  // Player error handler
+  private onPlayerError = (): void => {
+    if (this.loadingElement) {
       this.loadingElement.classList.add('error-state');
       this.loadingElement.classList.remove('fade-out');
-    });
-  }
-
-  private fadeOutLoadingStates(): void {
-    // First ensure the player is fully loaded and sized before starting transitions
-    setTimeout(() => {
-      // Make sure elements still exist
-      if (!this.loadingElement || !this.thumbnailElement) return;
+      this.loadingElement.style.display = 'flex';
       
-      // Add fade-out class to start transition
-      this.loadingElement.classList.add('fade-out');
-      this.thumbnailElement.classList.add('fade-out');
-      
-      // After transition completes, hide elements completely but preserve structure
+      // Add a timeout to forcefully remove the loading spinner after a few seconds
+      // even if the error persists
       setTimeout(() => {
-        if (!this.loadingElement || !this.thumbnailElement) return;
-        
-        // Use hidden class that preserves the element structure
-        this.loadingElement.classList.add('hidden');
-        this.thumbnailElement.classList.add('hidden');
-      }, 500); // Match this with the CSS transition duration
-    }, 500); // Longer delay to ensure player is ready
-  }
+        this.forceRemoveLoadingStates();
+      }, 3000);
+    }
+    
+    // Mark the container as having an error
+    this.container.classList.add('video-error');
+    
+    // Dispatch an error event
+    const errorEvent = new CustomEvent('player-error');
+    this.container.dispatchEvent(errorEvent);
+  };
 
-  private async setThumbnail(videoId: number): Promise<void> {
-    try {
-      const response = await fetch(`https://vimeo.com/api/v2/video/${videoId}.json`);
-      const data = await response.json();
-      if (data?.[0]?.thumbnail_large) {
-        this.thumbnailElement.src = data[0].thumbnail_large;
-        // The load event listener is now in constructor
-      }
-    } catch (error) {
-      console.error('Failed to fetch thumbnail:', error);
-      // If thumbnail fails, consider it "loaded" anyway
-      this.container.dispatchEvent(new CustomEvent('thumbnail-error'));
+  // Player play handler
+  private onPlayerPlay = (): void => {
+    // Always fade out loading states when video plays
+    this.fadeOutLoadingStates();
+  };
+
+  // Player pause handler
+  private onPlayerPause = (): void => {
+    // Do nothing for now, but we might need this later
+  };
+
+  // Method to force remove loading states
+  public forceRemoveLoadingStates(): void {
+    if (this.loadingElement && this.loadingElement.parentNode) {
+      this.loadingElement.remove();
+    }
+    if (this.thumbnailElement && this.thumbnailElement.parentNode) {
+      this.thumbnailElement.remove();
+    }
+    
+    // Also mark the player as ready to ensure UI elements update properly
+    if (!this.container.classList.contains('preview-ready')) {
+      this.container.classList.add('preview-ready');
     }
   }
 
-  private extractVideoId(url: string): number {
-    if (!url) {
-      throw new Error('Video ID not found');
-    }
-
-    // Handle direct numeric ID
-    if (/^\d+$/.test(url)) {
-      const id = parseInt(url, 10);
-      if (id > 0) {
-        return id;
-      }
-    }
-
-    // Handle Vimeo URL
-    const match = url.match(/(?:vimeo\.com\/|\/)?(\d+)/i);
-    if (match && match[1]) {
-      const id = parseInt(match[1], 10);
-      if (id > 0) {
-        return id;
-      }
-    }
-
-    throw new Error('Invalid video ID or URL provided');
+  // Helper method to fade out loading states
+  private fadeOutLoadingStates(): void {
+    // Use forceRemoveLoadingStates for immediate removal in all cases
+    this.forceRemoveLoadingStates();
   }
 
+  // Public methods
   public play(): Promise<void> {
-    return this.player.play();
+    return this.player.play().then(() => {
+      // Ensure loading states are removed after successful play
+      this.fadeOutLoadingStates();
+    });
   }
 
   public pause(): Promise<void> {
     return this.player.pause();
   }
 
-  public async destroy(): Promise<void> {
-    // Clean up loading and thumbnail elements
+  public getPlaying(): Promise<boolean> {
+    return this.player.getPaused().then(isPaused => !isPaused);
+  }
+
+  public stop(): Promise<void> {
+    return this.player.unload();
+  }
+
+  public destroy(): Promise<void> {
+    // Clean up event listeners and DOM elements
     if (this.loadingElement && this.loadingElement.parentNode) {
-      this.loadingElement.parentNode.removeChild(this.loadingElement);
+      this.loadingElement.remove();
     }
     if (this.thumbnailElement && this.thumbnailElement.parentNode) {
-      this.thumbnailElement.parentNode.removeChild(this.thumbnailElement);
+      this.thumbnailElement.remove();
     }
-
-    // Destroy the Vimeo player
-    await this.player.destroy();
-
-    // Clear the container
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
+    // Destroy the Vimeo player instance
+    return this.player.destroy();
   }
 } 
