@@ -1,6 +1,6 @@
 {
   "name": "@studiostarum/custom-vimeo-player",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A modern, responsive video player implementation built on top of the Vimeo Player SDK",
   "type": "module",
   "main": "dist/index.js",
