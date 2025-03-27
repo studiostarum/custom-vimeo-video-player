@@ -2,10 +2,8 @@
 import { VideoPlayer } from './components/video-player';
 import { Lightbox } from './components/lightbox';
 
-// Import all styles
-import './components/video-player/index.css';
-import './components/lightbox/index.css';
-import './components/shared/video-lightbox.css';
+// Import CSS via the dedicated CSS file
+import './css';
 
 // Auto-init module - helps with automatic initialization
 import './auto-init';

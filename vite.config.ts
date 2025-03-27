@@ -8,17 +8,10 @@ const __dirname = dirname(__filename)
 export default defineConfig({
   build: {
     lib: {
-      entry: {
-        index: resolve(__dirname, 'src/index.ts'),
-        css: resolve(__dirname, 'src/css.ts')
-      },
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'CustomVimeoPlayer',
       formats: ['es', 'cjs', 'umd'],
-      fileName: (format, entryName) => {
-        if (entryName === 'css') {
-          return format === 'es' ? 'css.js' : 'css.cjs';
-        }
-        
+      fileName: (format) => {
         switch (format) {
           case 'es':
             return 'index.js'
