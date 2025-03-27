@@ -1,4 +1,4 @@
-# F2F Awards Video Player
+# Custom Vimeo Video Player
 
 A modern, responsive video player implementation built on top of the Vimeo Player SDK. Features both inline preview and lightbox modes with comprehensive customization options.
 
