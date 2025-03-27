@@ -12,13 +12,27 @@ export class Lightbox {
   private wasPlaying = false;
 
   constructor(options: LightboxOptions) {
+    // Ensure options is an object, even if undefined is passed
+    const safeOptions = options || {} as LightboxOptions;
+    
+    // Validate required properties
+    if (!safeOptions.triggerSelector) {
+      console.error('Lightbox requires a triggerSelector option');
+      safeOptions.triggerSelector = '.lightbox-trigger'; // Fallback default
+    }
+    
+    if (!safeOptions.videoIdOrUrl) {
+      console.error('Lightbox requires a videoIdOrUrl option');
+      safeOptions.videoIdOrUrl = ''; // Empty fallback
+    }
+    
     this.options = {
-      ...options,
-      autoplay: options.autoplay !== undefined ? options.autoplay : true,
-      muted: options.muted !== undefined ? options.muted : false,
-      controls: options.controls !== undefined ? options.controls : true,
-      loop: options.loop !== undefined ? options.loop : false,
-      resumeOnVisibilityChange: options.resumeOnVisibilityChange !== undefined ? options.resumeOnVisibilityChange : false,
+      ...safeOptions,
+      autoplay: safeOptions.autoplay !== undefined ? safeOptions.autoplay : true,
+      muted: safeOptions.muted !== undefined ? safeOptions.muted : false,
+      controls: safeOptions.controls !== undefined ? safeOptions.controls : true,
+      loop: safeOptions.loop !== undefined ? safeOptions.loop : false,
+      resumeOnVisibilityChange: safeOptions.resumeOnVisibilityChange !== undefined ? safeOptions.resumeOnVisibilityChange : false,
     };
 
     this.createLightbox();

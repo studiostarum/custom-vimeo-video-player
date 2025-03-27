@@ -21,7 +21,7 @@ A lightweight, customizable Vimeo video player with lightbox support. Perfect fo
 Add this script to your page's `<head>` section:
 
 ```html
-<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.0/dist/custom-vimeo-player.min.js"></script>
+<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.4/dist/custom-vimeo-player.min.js"></script>
 ```
 
 ### Option 2: npm (For JavaScript Projects)
@@ -29,6 +29,18 @@ Add this script to your page's `<head>` section:
 ```bash
 npm install @studiostarum/custom-vimeo-player
 ```
+
+## Recent Updates
+
+### v1.4.4
+- Fixed Lightbox component initialization error with improved error handling
+- Added defensive coding to prevent errors when options are undefined
+- Updated documentation
+
+### v1.4.3
+- Fixed "Cannot read properties of undefined (reading 'autoplay')" error in VideoPlayer
+- Improved error handling
+- Fixed issue with circular dependencies
 
 ## Usage
 
