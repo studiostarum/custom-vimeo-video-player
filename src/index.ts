@@ -2,6 +2,9 @@
 import { VideoPlayer } from './components/video-player';
 import { Lightbox } from './components/lightbox';
 
+// Import custom elements
+import { registerCustomElements, VideoPlayerElement, LightboxElement } from './custom-elements';
+
 // Import CSS via the dedicated CSS file
 import './css';
 
@@ -13,6 +16,9 @@ console.log('[Custom Vimeo Player] Styles loaded. If you don\'t see styles, impo
 
 // Export components
 export { VideoPlayer, Lightbox };
+
+// Export custom elements
+export { registerCustomElements, VideoPlayerElement, LightboxElement };
 
 // Export types
 export type { VideoPlayerOptions } from './components/video-player/types';

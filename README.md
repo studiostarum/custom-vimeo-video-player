@@ -13,6 +13,7 @@ A lightweight, customizable Vimeo video player with lightbox support. Perfect fo
 - 📱 Mobile-friendly
 - ⌨️ Keyboard navigation in lightbox mode
 - 🔍 High-quality video options
+- 🧩 Custom HTML elements available
 
 ## Installation
 
@@ -22,9 +23,9 @@ Add this script to your page's `<head>` section:
 
 ```html
 <!-- JavaScript -->
-<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.4/dist/custom-vimeo-player.min.js"></script>
+<script src="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.6/dist/custom-vimeo-player.min.js"></script>
 <!-- CSS -->
-<link rel="stylesheet" href="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.4/dist/custom-vimeo-player.css">
+<link rel="stylesheet" href="https://unpkg.com/@studiostarum/custom-vimeo-player@1.4.6/dist/custom-vimeo-player.css">
 ```
 
 ### Option 2: npm (For JavaScript Projects)
@@ -34,6 +35,11 @@ npm install @studiostarum/custom-vimeo-player
 ```
 
 ## Recent Updates
+
+### v1.4.6
+- Added support for flexible container selection with `containerSelector`
+- Added custom elements (`<video-player>` and `<video-lightbox>`)
+- Improved error handling for container selection
 
 ### v1.4.5
 - Fixed issue with CSS not being loaded properly
@@ -54,7 +60,7 @@ npm install @studiostarum/custom-vimeo-player
 
 ### Using with CDN
 
-Just add video containers anywhere in your HTML:
+#### Classic Div-Based Approach:
 
 ```html
 <!-- Basic Video Player -->
@@ -71,7 +77,34 @@ Just add video containers anywhere in your HTML:
 </div>
 ```
 
-That's it! The player will automatically initialize.
+#### NEW: Custom HTML Elements:
+
+```html
+<!-- Basic Video Player -->
+<video-player 
+  video-id="75406915"
+  autoplay="true"
+  muted="true"
+  controls="false">
+</video-player>
+
+<!-- Video Player with Lightbox -->
+<video-player
+  video-id="75406915"
+  lightbox="true"
+  autoplay="true"
+  muted="true">
+</video-player>
+
+<!-- Standalone Lightbox -->
+<button id="open-video">Open Video</button>
+<video-lightbox
+  video-id="75406915" 
+  trigger-selector="#open-video"
+  autoplay="true"
+  controls="true">
+</video-lightbox>
+```
 
 ### Using with npm
 
@@ -82,9 +115,17 @@ import { VideoPlayer, Lightbox } from '@studiostarum/custom-vimeo-player';
 // Import the CSS (important!)
 import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
 
-// Create a basic video player
-const player = new VideoPlayer({
+// Create a video player using an ID
+const player1 = new VideoPlayer({
   containerId: 'video-container',
+  videoIdOrUrl: '75406915',
+  autoplay: true,
+  muted: true
+});
+
+// NEW: Create a player using a CSS selector (any valid selector)
+const player2 = new VideoPlayer({
+  containerSelector: '.my-video-container',
   videoIdOrUrl: '75406915',
   autoplay: true,
   muted: true
@@ -92,7 +133,7 @@ const player = new VideoPlayer({
 
 // Create a video player with lightbox
 const playerWithLightbox = new VideoPlayer({
-  containerId: 'video-container-2',
+  containerSelector: '#video-with-lightbox',
   videoIdOrUrl: '75406915',
   autoplay: true,
   muted: true,
@@ -101,11 +142,27 @@ const playerWithLightbox = new VideoPlayer({
 
 // Initialize lightbox separately
 const lightbox = new Lightbox({
-  triggerSelector: '#video-container-2',
+  triggerSelector: '#video-with-lightbox',
   videoIdOrUrl: '75406915',
   autoplay: true,
   controls: true
 });
+```
+
+### NEW: Using Custom Elements in JavaScript
+
+If you prefer using the custom elements in your JavaScript application:
+
+```typescript
+// Import and register custom elements
+import { registerCustomElements } from '@studiostarum/custom-vimeo-player';
+import '@studiostarum/custom-vimeo-player/dist/custom-vimeo-player.css';
+
+// Register the custom elements (this is done automatically if using the CDN version)
+registerCustomElements();
+
+// Now you can use them in your HTML
+// <video-player video-id="75406915"></video-player>
 ```
 
 ## Alternative CSS Import Methods

@@ -21,6 +21,14 @@ export class VideoPlayer {
       this.container = container;
       this.container.style.position = 'relative';
       this.container.style.overflow = 'hidden';
+    } else if (options.containerSelector) {
+      const container = document.querySelector(options.containerSelector);
+      if (!container || !(container instanceof HTMLElement)) {
+        throw new Error(`Container with selector "${options.containerSelector}" not found or is not an HTMLElement`);
+      }
+      this.container = container;
+      this.container.style.position = 'relative';
+      this.container.style.overflow = 'hidden';
     } else {
       throw new Error('No container provided for video player');
     }
